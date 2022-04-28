@@ -13,6 +13,7 @@ const server = http.createServer((req, res) => {
     spawner_service: process.env.SPAWNER_SERVICE || null,
     spawner_url: process.env.SPAWNER_URL || null,
     spawner_name: process.env.SPAWNER_NAME || null,
+    arbitrary_env_var: process.env.ARBITRARY_ENV_VAR,
   };  
 
   res.end(JSON.stringify(response));
