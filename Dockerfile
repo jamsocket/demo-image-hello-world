@@ -1,4 +1,4 @@
-FROM node:16
+FROM 18-alpine3.15
 
 EXPOSE 8080
 
@@ -11,4 +11,3 @@ RUN npm install
 COPY server.js /usr/src/app
 
 CMD ["node", "server.js"]
-
