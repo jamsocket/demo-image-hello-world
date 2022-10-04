@@ -10,9 +10,9 @@ const server = http.createServer((req, res) => {
   let response = {
     message: "Hello World",
     port: PORT,
-    spawner_service: process.env.SPAWNER_SERVICE || null,
-    spawner_url: process.env.SPAWNER_URL || null,
-    spawner_name: process.env.SPAWNER_NAME || null,
+    jamsocket_service: process.env.JAMSOCKET_SERVICE || null,
+    jamsocket_url: process.env.JAMSOCKET_URL || null,
+    jamsocket_name: process.env.JAMSOCKET_NAME || null,
     arbitrary_env_var: process.env.ARBITRARY_ENV_VAR,
   };  
 
