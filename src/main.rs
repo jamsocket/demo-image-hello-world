@@ -34,6 +34,7 @@ async fn index() -> Response<Body> {
     let env: HashMap<String, String> = env::vars().collect();
     let env_str = env
         .iter()
+        .filter(|(key, _)| key.starts_with("JAMSOCKET_"))
         .map(|(key, value)| {
             format!(
                 r#"
