@@ -1,9 +1,8 @@
-FROM node:lts-alpine3.16
+FROM rust:1.68-alpine as builder
+WORKDIR /work
+COPY . .
+RUN cargo install --path .
 
-EXPOSE 8080
-
-WORKDIR /usr/src/app
-
-COPY server.js /usr/src/app
-
-CMD ["node", "server.js"]
+FROM alpine:3.16
+COPY --from=builder /work/demo-image-hello-world /usr/local/bin/demo-image-hello-world
+CMD ["demo-image-hello-world"]
