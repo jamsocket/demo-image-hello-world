@@ -1,5 +1,6 @@
 use axum::body::Body;
-use axum::http::Response;
+use axum::http::{Request, Response};
+use axum::routing::any;
 use axum::{routing::get, Router};
 use std::collections::HashMap;
 use std::env;
@@ -11,8 +12,8 @@ async fn main() {
     let port = port.parse::<u16>().expect("PORT must be a number.");
 
     let app = Router::new()
-        .route("/", get(index))
-        .route("/logo.svg", get(logo));
+        .route("/logo.svg", get(logo))
+        .route("/*path", any(index));
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("Listening on http://{}", addr);
     axum::Server::bind(&addr)
@@ -30,7 +31,27 @@ async fn logo() -> Response<Body> {
         .unwrap()
 }
 
-async fn index() -> Response<Body> {
+async fn index(request: Request<Body>) -> Response<Body> {
+    let method = request.method();
+    let path = request.uri().path();
+    let query = request.uri().query().unwrap_or("");
+
+    let request_str = format!(
+        r#"
+    <li>
+        <samp class="key">method</samp>: <samp class="val">{method}</samp>
+    </li>
+
+    <li>
+        <samp class="key">path</samp>: <samp class="val">{path}</samp>
+    </li>
+
+    <li>
+        <samp class="key">query</samp>: <samp class="val">{query}</samp>
+    </li>
+    "#
+    );
+
     let env: HashMap<String, String> = env::vars().collect();
     let env_str = env
         .iter()
@@ -100,6 +121,10 @@ async fn index() -> Response<Body> {
                     <p><strong>Environment variables:</strong></p>
                     <ul>
                         {env_str}
+                    </ul>
+                    <p><strong>Request:</strong></p>
+                    <ul>
+                        {request_str}
                     </ul>
                 </div>
             </body>
