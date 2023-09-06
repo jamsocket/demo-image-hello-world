@@ -55,7 +55,7 @@ async fn index(request: Request<Body>) -> Response<Body> {
     let env: HashMap<String, String> = env::vars().collect();
     let env_str = env
         .iter()
-        .filter(|(key, _)| key.starts_with("JAMSOCKET_") || key == "PORT")
+        .filter(|(key, _)| key.starts_with("JAMSOCKET_") || key.as_str() == "PORT")
         .map(|(key, value)| {
             format!(
                 r#"
