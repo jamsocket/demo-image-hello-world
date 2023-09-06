@@ -13,7 +13,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/logo.svg", get(logo))
-        .route("/", any(index));
+        .route("/", any(index))
         .route("/*path", any(index));
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("Listening on http://{}", addr);
