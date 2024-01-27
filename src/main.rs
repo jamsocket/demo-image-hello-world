@@ -17,14 +17,15 @@ async fn main() {
         .route("/*path", any(index));
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("Listening on http://{}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+
+    let tcp_listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    axum::serve(tcp_listener, app.into_make_service())
         .await
         .unwrap();
 }
 
 async fn logo() -> Response<Body> {
-    let body = include_bytes!("assets/jamsocket-logo.svg");
+    let body = include_bytes!("assets/plane-logo.svg");
     let body = Body::from(body.to_vec());
     Response::builder()
         .header("content-type", "image/svg+xml")
@@ -53,10 +54,22 @@ async fn index(request: Request<Body>) -> Response<Body> {
     "#
     );
 
-    let env: HashMap<String, String> = env::vars().collect();
-    let env_str = env
+    let headers: Vec<(String, String)> = request
+        .headers()
+        .into_iter()
+        .filter_map(|(key, value)| {
+            let key = key.as_str().to_string();
+            let value = value.to_str().ok()?.to_string();
+            if key.starts_with("x-verified-") {
+                Some((key, value))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let headers_str = headers
         .iter()
-        .filter(|(key, _)| key.starts_with("JAMSOCKET_") || key.as_str() == "PORT")
         .map(|(key, value)| {
             format!(
                 r#"
@@ -69,23 +82,49 @@ async fn index(request: Request<Body>) -> Response<Body> {
         .collect::<Vec<String>>()
         .join("\n");
 
-    let message = if env.contains_key("JAMSOCKET_URL") {
-        "<h1>Hello from Jamsocket!</h1>"
+    let env: HashMap<String, String> = env::vars().collect();
+
+    let port = env
+        .get("PORT")
+        .map(|d| d.as_str())
+        .unwrap_or("not provided");
+
+    let mut env_str = env
+        .iter()
+        .filter(|(key, _)| key.starts_with("SESSION_BACKEND_"))
+        .map(|(key, value)| {
+            format!(
+                r#"
+                <li>
+                    <samp class="key">{key}</samp>: <samp class="val">{value}</samp>
+                </li>
+            "#
+            )
+        })
+        .collect::<Vec<String>>();
+
+    env_str.sort();
+
+    let env_str = env_str.join("\n");
+
+    let message = if env.contains_key("SESSION_BACKEND_ID") {
+        "<h1>Hello from Plane!</h1>"
     } else {
-        r#"<p style="color: #ff0000;">It looks like we are not running on Jamsocket (<samp>JAMSOCKET_URL</samp> is not set).</p>"#
+        r#"<p style="color: #ff0000;">It looks like we are not running on Plane (<samp>SESSION_BACKEND_ID</samp> is not set).</p>"#
     };
 
     let html = format!(
         r#"
         <html>
             <head>
-                <title>Jamsocket Hello World</title>
+                <title>Plane Hello World</title>
                 <style>
                     body {{
                         color: white;
                         background: #1a1a1a;
                         font-family: Helvetica, sans-serif;
                         padding-top: 40px;
+                        font-size: 120%;
                     }}
 
                     body > div {{
@@ -101,11 +140,11 @@ async fn index(request: Request<Body>) -> Response<Body> {
                     }}
 
                     .key {{
-                        color: #ff00ff;
+                        color: #ff77ff;
                     }}
 
                     .val {{
-                        color: #00ffff;
+                        color: #77ffff;
                     }}
 
                     ul {{
@@ -119,9 +158,14 @@ async fn index(request: Request<Body>) -> Response<Body> {
                         <img src="/logo.svg" alt="Jamsocket Logo" style="width: 270px;" />
                         {message}
                     </div>
+                    <p><strong>Port:</strong> {port}</p>
                     <p><strong>Environment variables:</strong></p>
                     <ul>
-                        {env_str}
+                    {env_str}
+                    </ul>
+                    <p><strong>Verified Headers:</strong></p>
+                    <ul>
+                        {headers_str}
                     </ul>
                     <p><strong>Request:</strong></p>
                     <ul>
