@@ -19,9 +19,13 @@ async fn main() {
     println!("Listening on http://{}", addr);
 
     let tcp_listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum::serve(tcp_listener, app.into_make_service())
-        .await
-        .unwrap();
+    tokio::spawn(async move {
+        axum::serve(tcp_listener, app.into_make_service())
+            .await
+            .unwrap()
+    });
+
+    tokio::signal::ctrl_c().await.unwrap()
 }
 
 async fn logo() -> Response<Body> {
