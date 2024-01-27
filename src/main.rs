@@ -155,7 +155,7 @@ async fn index(request: Request<Body>) -> Response<Body> {
             <body>
                 <div>
                     <div>
-                        <img src="/logo.svg" alt="Jamsocket Logo" style="width: 270px;" />
+                        <img src="logo.svg" alt="Plane Logo" style="width: 270px;" />
                         {message}
                     </div>
                     <p><strong>Port:</strong> {port}</p>
