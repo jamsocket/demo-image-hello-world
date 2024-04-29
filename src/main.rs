@@ -95,7 +95,7 @@ async fn index(request: Request<Body>) -> Response<Body> {
 
     let mut env_str = env
         .iter()
-        .filter(|(key, _)| key.starts_with("SESSION_BACKEND_"))
+        .filter(|(key, _)| key.starts_with("SESSION_BACKEND_") || key.starts_with("JAMSOCKET_"))
         .map(|(key, value)| {
             format!(
                 r#"
