@@ -1,8 +1,8 @@
-FROM rust:1.68-slim as builder
+FROM rust:1.80-slim as builder
 WORKDIR /work
 COPY . .
 RUN cargo install --path .
 
-FROM gcr.io/distroless/cc-debian11
+FROM debian:bookworm-slim
 COPY --from=builder /work/target/release/demo-image-hello-world /usr/local/bin/demo-image-hello-world
 CMD ["demo-image-hello-world"]
