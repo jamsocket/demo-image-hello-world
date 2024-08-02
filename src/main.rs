@@ -121,7 +121,7 @@ async fn index(request: Request<Body>) -> Response<Body> {
         r#"
         <html>
             <head>
-                <title>Plane Hello World!!</title>
+                <title>Plane Hello World</title>
                 <style>
                     body {{
                         color: white;
