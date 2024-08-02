@@ -112,7 +112,7 @@ async fn index(request: Request<Body>) -> Response<Body> {
     let env_str = env_str.join("\n");
 
     let message = if env.contains_key("SESSION_BACKEND_ID") {
-        "<h1>Hello from Plane!</h1>"
+        "<h1>Hello from Plane!!</h1>"
     } else {
         r#"<p style="color: #ff0000;">It looks like we are not running on Plane (<samp>SESSION_BACKEND_ID</samp> is not set).</p>"#
     };
